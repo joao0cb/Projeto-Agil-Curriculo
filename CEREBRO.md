@@ -76,12 +76,11 @@ flowchart LR
 ## 7. Estado atual
 
 | Campo | Valor |
-|---|---|
-| Fase | Planejamento (pré-Sprint 0) |
+|---|---|| Fase | Execução em andamento — Sprint 4 concluída |
 | Sprint atual | — |
-| Próxima ação | Validar [[Premissas do Escopo]] com os [[Stakeholders]] |
-| Riscos ativos | Ver [[Riscos e Mitigacoes]] |
-| Última atualização | 2026-09-10 |
+| Sprint concluída mais recente | [[Sprint 4]] — Insumos e estoque (módulo completo: backend Convex, regras puras testadas, UI com alertas) |
+| Próxima ação | Iniciar Sprint 5 (manutenção e calibração) e manter kanban GH #1 sincronizado com entregas | Riscos ativos | Ver [[Riscos e Mitigacoes]] |
+| Última atualização | 2026-09-17 |
 
 ## 8. Decisões já tomadas (resumo de [[ADRs]])
 
