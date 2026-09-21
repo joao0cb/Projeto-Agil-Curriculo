@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { FlaskConical, Package } from "lucide-react";
+import { FlaskConical, Package, Wrench } from "lucide-react";
 import { InsumosPage, useSupplies, stockLevel } from "./modules/insumos";
+import { ManutencaoPage } from "./modules/manutencao";
 import type { Supply } from "./modules/insumos";
 
-type Tab = "insumos" | "inicio";
+type Tab = "inicio" | "insumos" | "manutencao";
 
 function LowStockAlert() {
   const { supplies } = useSupplies({ onlyLowStock: true });
@@ -85,12 +86,19 @@ export default function App() {
                   <Package className="size-4" aria-hidden="true" /> Insumos
                 </button>
               </li>
+              <li>
+                <button type="button" className={tabButton(tab === "manutencao")} onClick={() => setTab("manutencao")} aria-current={tab === "manutencao" ? "page" : undefined}>
+                  <Wrench className="size-4" aria-hidden="true" /> Manutenção
+                </button>
+              </li>
             </ul>
           </nav>
         </div>
       </header>
 
-      <main>{tab === "inicio" ? <Dashboard /> : <InsumosPage />}</main>
+      <main>
+        {tab === "inicio" ? <Dashboard /> : tab === "insumos" ? <InsumosPage /> : <ManutencaoPage />}
+      </main>
       {tab === "inicio" && <LowStockAlert />}
     </div>
   );

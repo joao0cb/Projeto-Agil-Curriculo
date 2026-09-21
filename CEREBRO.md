@@ -76,11 +76,13 @@ flowchart LR
 ## 7. Estado atual
 
 | Campo | Valor |
-|---|---|| Fase | Execução em andamento — Sprint 4 concluída |
+|---|---|
+| Fase | Execução em andamento — Sprint 5 concluída |
 | Sprint atual | — |
-| Sprint concluída mais recente | [[Sprint 4]] — Insumos e estoque (módulo completo: backend Convex, regras puras testadas, UI com alertas) |
-| Próxima ação | Iniciar Sprint 5 (manutenção e calibração) e manter kanban GH #1 sincronizado com entregas | Riscos ativos | Ver [[Riscos e Mitigacoes]] |
-| Última atualização | 2026-09-17 |
+| Sprint concluída mais recente | [[Sprint 5]] — Manutenção e calibração (chamados, preventivas, calibrações, bloqueio de reserva por status do equipamento) |
+| Próxima ação | Iniciar Sprint 6 (relatórios) e sincronizar kanban GH #1 com `sh ./scripts/sync-kanban.sh` quando a permissão de escrita no Project for liberada |
+| Riscos ativos | Ver [[Riscos e Mitigacoes]] |
+| Última atualização | 2026-09-21 |
 
 ## 8. Decisões já tomadas (resumo de [[ADRs]])
 
