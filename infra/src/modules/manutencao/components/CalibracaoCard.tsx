@@ -1,30 +1,14 @@
 import { Calendar, FileText } from "lucide-react";
 import type { Calibration } from "../domain/rules";
 import { CALIBRATION_RESULT } from "../domain/rules";
+import { StatusBadge } from "../../../components/StatusBadge";
 
 interface CalibracaoCardProps {
   calibracao: Calibration;
 }
 
-const RESULT_LABEL: Record<string, string> = {
-  aprovado: "Aprovado",
-  reprovado: "Reprovado",
-  nao_aplicavel: "Não aplicável",
-};
-
 export function CalibracaoCard({ calibracao }: CalibracaoCardProps) {
-  const label = RESULT_LABEL[calibracao.result] ?? calibracao.result;
-
-  const isAprovado = calibracao.result === CALIBRATION_RESULT.APROVADO;
-  const isReprovado = calibracao.result === CALIBRATION_RESULT.REPROVADO;
-  const statusClass =
-    isAprovado
-      ? "inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700"
-      : isReprovado
-        ? "inline-flex items-center rounded-md border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700"
-        : "inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-700";
-
-  const dot = isAprovado ? "●" : isReprovado ? "✕" : "⊘";
+  void CALIBRATION_RESULT; // valores referenciados pelos testes de domínio; card usa StatusBadge
 
   return (
     <li className="rounded-lg border border-border bg-card p-4 shadow-sm">
@@ -35,10 +19,7 @@ export function CalibracaoCard({ calibracao }: CalibracaoCardProps) {
               <Calendar className="size-4" aria-hidden="true" />
               {new Date(calibracao.executionDate).toLocaleDateString("pt-BR")}
             </span>
-            <span className={statusClass}>
-              <span className="mr-1.5" aria-hidden="true">{dot}</span>
-              {label}
-            </span>
+            <StatusBadge value={calibracao.result} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">Responsável: {calibracao.responsibleId}</p>
           {calibracao.note && <p className="mt-1 text-sm text-muted-foreground">{calibracao.note}</p>}

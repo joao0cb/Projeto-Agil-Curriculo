@@ -61,6 +61,27 @@ export const MOVEMENT_QUANTITY_INVALID = "A quantidade deve ser maior que zero."
 export const MOVEMENT_LOT_REQUIRED = "Informe o lote da movimentação.";
 export const MOVEMENT_BALANCE_INSUFICIENTE = "Saldo insuficiente: a saída excede o estoque disponível.";
 
+/**
+ * Valida o cadastro campo a campo (auditoria UX — H5/H9, achados 5.3/9.2):
+ * cada erro é indexado pelo campo, permitindo aria-invalid e mensagem junto
+ * ao input no formulário. `form` concentra erros globais do conjunto.
+ */
+export function validateSupplyDraftFields(draft: SupplyDraft): Record<string, string> {
+  const errors: Record<string, string> = {};
+  if (!draft.name.trim()) errors.name = SUPPLY_NAME_REQUIRED;
+  if (!draft.code.trim()) errors.code = SUPPLY_CODE_REQUIRED;
+  if (!draft.unit.trim()) errors.unit = SUPPLY_UNIT_REQUIRED;
+  if (!draft.responsibleId.trim()) errors.responsibleId = SUPPLY_RESPONSIBLE_REQUIRED;
+  if (!Number.isFinite(draft.minimumStock) || draft.minimumStock < 0) errors.minimumStock = SUPPLY_MIN_INVALID;
+  if (!Number.isFinite(draft.initialBalance) || draft.initialBalance < 0) {
+    errors.initialBalance = SUPPLY_INITIAL_NEGATIVE;
+  } else if (draft.initialBalance > 0 && (!draft.lot.trim() || draft.expiresAt === null)) {
+    errors.lot = SUPPLY_INITIAL_NEEDS_LOT;
+    errors.expiresAt = SUPPLY_INITIAL_NEEDS_LOT;
+  }
+  return errors;
+}
+
 /** Valida o cadastro de um novo insumo. Retorna a primeira mensagem de erro ou null. */
 export function validateSupplyDraft(draft: SupplyDraft): string | null {
   if (!draft.name.trim()) return SUPPLY_NAME_REQUIRED;

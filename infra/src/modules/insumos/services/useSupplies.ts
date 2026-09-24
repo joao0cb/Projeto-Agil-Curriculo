@@ -9,7 +9,13 @@ export type SupplyFilter = {
   onlyLowStock?: boolean;
 };
 
-/** Serviço do módulo: único ponto de contato com o backend Convex. */
+/**
+ * Serviço do módulo: único ponto de contato com o backend Convex.
+ *
+ * Observação (auditoria UX — 9.1): `useQuery` do Convex lança o erro durante
+ * o render em falhas de rede/permissão. A UI exibe esse estado via
+ * `QueryErrorBoundary` na página (InsumosPage), não via valor retornado.
+ */
 export function useSupplies(filters: SupplyFilter) {
   const supplies = useQuery(api.insumos.listSupplies, {
     search: filters.search || undefined,

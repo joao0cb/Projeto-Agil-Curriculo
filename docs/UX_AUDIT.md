@@ -170,3 +170,34 @@
 **Verificação:** `tsc -b` limpo nos arquivos alterados (restam 4 erros pré-existentes de `convex/_generated`, backend fora do snapshot); `vitest`: 49/49 aprovados.
 
 **Não alterados nesta etapa (aguardam próximas etapas):** TicketRow, EquipmentCard, CalibracaoCard, SupplyList, InsumosPage, App shell.
+
+### Etapa 2 — Passos 3–7 do plano (✅ concluída)
+
+**Passo 3 — Consistência e status (H4):**
+- `StatusBadge.tsx` — `STATUS_LABELS`/`statusLabelFor` viraram a fonte única de rótulos (4.1); normalização também cobre `_` (nao_aplicavel → "Não aplicável"); badge renderiza o rótulo canônico.
+- `TicketRow.tsx` — mapa `CHAMADO_LABEL` removido; "responsável" → "solicitante" para `requesterId` (2.4); aviso de bloqueio só no chamado "em andamento" (8.1); transições com estado de espera no botão ("Aplicando…"), confirmação antes de Cancelar/Concluir (3.3) e erro visível da mutation (9.3) — falha nunca fica silenciosa.
+- `EquipmentCard.tsx` — ternários/dot/paleta local substituídos pelo `StatusBadge` (4.3); "Nº serie" → "Nº de série" (2.5).
+- `CalibracaoCard.tsx` — badge via `StatusBadge` (sem paleta própria).
+- `ManutencaoPage.tsx` — badge slate das preventivas via `StatusBadge` (4.2); mapa de labels local removido; seção preventivas mostra "Equipamento: {id}" e "Última execução por" (texto mais claro).
+
+**Passo 4 — Formulários de manutenção (H5/H9):**
+- `ChamadoForm.tsx` — erro com `role="alert"`, `aria-invalid`/`aria-describedby` no campo com problema, mensagem com próximo passo ("dados continuam preenchidos…").
+- `PreventivaForm.tsx` — **5.2 corrigido**: agora recebe a lista de preventivas pendentes, tem seletor obrigatório (fim do `taskId` fixo `preventiva-demo`), e envia `executionDate` + `note` coletados; validação por campo com `aria-invalid`.
+
+**Passo 5 — Formulários de insumos (H5/H9):**
+- `domain/rules.ts` — nova `validateSupplyDraftFields()` (erros indexados por campo; `validateSupplyDraft` mantida para backend/testes).
+- `SupplyForm.tsx` — erros por campo com `aria-invalid`/`aria-describedby`/mensagem junto ao input; limpar número não vira 0 silencioso (5.4); catch de mutation com mensagem de recuperação.
+- `SupplyDetail.tsx` — já tinha feedback pós-sucesso e validação dupla (mantido).
+
+**Passo 6 — Shell e estados de erro (H7/H1/H9):**
+- `App.tsx` — **7.1 corrigido**: páginas ficam montadas com `hidden` ao trocar de aba (busca/filtros/ficha/modais sobrevivem); skeleton no Dashboard (1.5); "Laboratórios — Em breve" (1.4); texto de roadmap removido (8.2).
+- `QueryErrorBoundary.tsx` *(novo)* — captura erros lançados por `useQuery` do Convex (rede/permissão) e mostra estado de erro humano com "Tentar novamente" — **9.1 corrigido** (falha de query nunca mais é silenciosa nem derruba a tela).
+- `InsumosPage.tsx` — listagem envolvida pelo error boundary.
+- `useSupplies.ts` — comentário documentando que `useQuery` lança em render (contrato real do Convex).
+
+**Passo 7 — Verificação:**
+- `bun tsc -p tsconfig.json --noEmit` limpo.
+- `bun vitest run`: **52/52 aprovados** (StatusBadge.test e TicketRow.test atualizados ao novo comportamento de rótulo/aviso).
+- `bun run lint` limpo (2 no-unused-vars no mock de preview resolvidos).
+
+**Pendências fora do escopo (conforme plano):** seleção real de equipamento no ChamadoForm e nomes de pessoas/equipamentos no lugar de IDs (dependem dos módulos S1–S2 — 5.1/6.1 parcialmente resolvidos: PreventivaForm já tem seleção); paginação de histórico (7.3); atalhos de teclado globais (7.4); tooltips de domínio (10.1 — Sprint 8).

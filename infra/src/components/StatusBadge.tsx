@@ -72,18 +72,55 @@ export const STATUS_META: Record<string, StatusMeta> = {
   reprovado: { variant: "unavailable", symbol: "✕", description: "Calibração reprovada — o equipamento requer ajuste." },
 };
 
-/** Minúsculas + remove acentos: "Concluído" → "concluido". */
+/** Minúsculas + sem acentos + underscores como espaços: "Concluído" → "concluido", "nao_aplicavel" → "nao aplicavel". */
 export function normalizeStatusKey(value: string): string {
   return value
     .toLowerCase()
     .trim()
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/_/g, " ");
 }
 
 /** Busca o metadado canônico de um status/label (case/acento-insensitive). */
 export function statusMetaFor(value: string): StatusMeta | undefined {
   return STATUS_META[normalizeStatusKey(value)];
+}
+
+/**
+ * Fonte única de rótulos legíveis por status (auditoria UX — H4, achado 4.1):
+ * componentes nunca mais mantêm mapas locais status → label.
+ */
+export const STATUS_LABELS: Record<string, string> = {
+  // Equipamentos
+  disponivel: "Disponível",
+  "em uso": "Em uso",
+  pendente: "Pendente",
+  atrasado: "Atrasado",
+  "em manutencao": "Em manutenção",
+  indisponivel: "Indisponível",
+  quebrado: "Quebrado",
+
+  // Chamados de manutenção
+  aberto: "Aberto",
+  "em andamento": "Em andamento",
+  "aguardando peca": "Aguardando peça",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
+
+  // Manutenções preventivas
+  programada: "Programada",
+  concluida: "Concluída",
+  "nao aplicavel": "Não aplicável",
+
+  // Calibrações
+  aprovado: "Aprovado",
+  reprovado: "Reprovado",
+};
+
+/** Rótulo canônico e legível de um status (case/acento/underscore-insensitive). */
+export function statusLabelFor(value: string): string {
+  return STATUS_LABELS[normalizeStatusKey(value)] ?? value;
 }
 
 /** Resolve a variante de um status (útil fora do badge, ex.: classes de linha). */
@@ -106,17 +143,18 @@ export function StatusBadge({ value, variant: forcedVariant, symbol: forcedSymbo
   const resolved: StatusVariant = forcedVariant ?? meta?.variant ?? "neutral";
   const symbol = forcedSymbol ?? meta?.symbol ?? "○";
   const description = meta?.description;
+  const label = statusLabelFor(value);
 
   return (
     <span
       className={twMerge(clsx(variant({ variant: resolved })), className)}
       title={description}
-      aria-label={description ? `${value}: ${description}` : undefined}
+      aria-label={description ? `${label}: ${description}` : undefined}
     >
       <span className="mr-1.5" aria-hidden="true">
         {symbol}
       </span>
-      {value}
+      {label}
     </span>
   );
 }

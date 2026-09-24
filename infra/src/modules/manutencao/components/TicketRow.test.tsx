@@ -23,14 +23,16 @@ describe("TicketRow", () => {
     expect(screen.getByText("Média")).toBeInTheDocument();
   });
 
-  it("mostra aviso de indisponibilidade para reserva quando aberto", () => {
-    render(<TicketRow ticket={ticket({ status: "aberto" })} onUpdateStatus={vi.fn()} />);
-    expect(screen.getByText(/não está disponível para nova reserva/i)).toBeInTheDocument();
+  it("mostra aviso de bloqueio de reserva quando em andamento (H8 8.1: ruído só onde muda decisão)", () => {
+    render(<TicketRow ticket={ticket({ status: "em andamento" })} onUpdateStatus={vi.fn()} />);
+    expect(screen.getByText(/bloqueado para novas reservas/i)).toBeInTheDocument();
   });
 
-  it("não mostra aviso quando o chamado está concluído", () => {
-    render(<TicketRow ticket={ticket({ status: "concluido" })} onUpdateStatus={vi.fn()} />);
-    expect(screen.queryByText(/não está disponível para nova reserva/i)).not.toBeInTheDocument();
+  it("não mostra aviso quando o chamado está aberto, concluído ou cancelado", () => {
+    for (const status of ["aberto", "concluido", "cancelado"] as const) {
+      render(<TicketRow ticket={ticket({ status })} onUpdateStatus={vi.fn()} />);
+      expect(screen.queryByText(/bloqueado para novas reservas/i)).not.toBeInTheDocument();
+    }
   });
 
   it("habilita ações apropriadas e chama update na transição", async () => {

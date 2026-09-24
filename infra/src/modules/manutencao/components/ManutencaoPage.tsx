@@ -15,7 +15,8 @@ import type {
   Calibration,
   MaintenanceTicketDraft,
 } from "../domain/rules";
-import { MAINTENANCE_TICKET_STATUS } from "../domain/rules";
+import { MAINTENANCE_TICKET_STATUS, PREVENTIVE_STATUS } from "../domain/rules";
+import { StatusBadge } from "../../../components/StatusBadge";
 import { TicketRow } from "./TicketRow";
 import { ChamadoForm } from "./ChamadoForm";
 import { PreventivaForm } from "./PreventivaForm";
@@ -34,6 +35,11 @@ export function ManutencaoPage() {
   const abrirChamado = useAbrirChamado();
   const atualizarChamado = useAtualizarChamado();
   const registrarPreventiva = useRegistrarPreventiva();
+
+  // 6.3/5.2: preventivas ainda não concluídas alimentam o seletor do form.
+  const pendingTasks = ((tasks ?? []) as unknown as PreventiveTask[]).filter(
+    (t) => t.status !== PREVENTIVE_STATUS.CONCLUIDA,
+  );
 
   return (
     <section aria-labelledby="manutencao-heading" className="mx-auto w-full max-w-5xl flex flex-col gap-6 p-6">
@@ -103,8 +109,10 @@ export function ManutencaoPage() {
       <PreventivaForm
         open={preventivaForm}
         onClose={() => setPreventivaForm(false)}
-        onSubmit={async (taskId) => {
-          await registrarPreventiva(taskId, { executionDate: Date.now(), responsibleId: "user-demo" });
+        tasks={pendingTasks}
+        onSubmit={async ({ taskId, executionDate, note }) => {
+          // 5.2: data e observação coletadas pelo form são enviadas de fato.
+          await registrarPreventiva(taskId, { executionDate, responsibleId: "user-demo", note });
           setPreventivaForm(false);
         }}
       />
@@ -182,13 +190,6 @@ type PreventivasSectionProps = {
 };
 
 function PreventivasSection({ tasks, onOpen }: PreventivasSectionProps) {
-  const statusLabel: Record<string, string> = {
-    programada: "Programada",
-    "em andamento": "Em andamento",
-    concluida: "Concluída",
-    nao_aplicavel: "Não aplicável",
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
@@ -218,12 +219,11 @@ function PreventivasSection({ tasks, onOpen }: PreventivasSectionProps) {
                 <div>
                   <h3 className="font-semibold text-foreground">{task.type}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Equipamento #{task.equipmentId} · intervalo {task.intervalDays} dias
+                    Equipamento: {task.equipmentId} · intervalo {task.intervalDays} dias
                   </p>
                 </div>
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-                  {statusLabel[task.status] ?? task.status}
-                </span>
+                {/* 4.2: badge via StatusBadge compartilhado, sem paleta local. */}
+                <StatusBadge value={task.status} />
               </div>              {task.nextDate != null && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   Próxima: {new Date(task.nextDate).toLocaleDateString("pt-BR")} ·{" "}
@@ -231,7 +231,7 @@ function PreventivasSection({ tasks, onOpen }: PreventivasSectionProps) {
                 </p>
               )}
               <p className="mt-2 text-xs text-muted-foreground">
-                responsável: {task.lastResponsibleId || "—"} · {task.lastNote || "sem observação"}
+                Última execução por {task.lastResponsibleId || "—"} · {task.lastNote || "sem observação"}
               </p>
             </div>
           ))}

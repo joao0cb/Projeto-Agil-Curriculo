@@ -29,30 +29,36 @@ function Dashboard() {
   const { supplies } = useSupplies({});
   const list = supplies ?? [];
   const low = list.filter((s: Supply) => stockLevel(s) !== "ok").length;
+  const loading = supplies === undefined;
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <h1 className="font-serif text-2xl font-bold text-foreground">Dashboard</h1>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <p className="text-sm text-muted-foreground">Insumos ativos</p>
-          <p className="mt-1 text-3xl font-semibold tabular-nums">
-            {supplies === undefined ? "…" : list.length}
-          </p>
+          {/* 1.5: skeleton em vez de "…"; 1.4: dado indisponível é rotulado. */}
+          {loading ? (
+            <div className="mt-2 h-9 w-16 animate-pulse rounded bg-muted" aria-hidden="true" />
+          ) : (
+            <p className="mt-1 text-3xl font-semibold tabular-nums">{list.length}</p>
+          )}
         </div>
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <p className="text-sm text-muted-foreground">Alertas de estoque</p>
-          <p className={`mt-1 text-3xl font-semibold tabular-nums ${low > 0 ? "text-amber-700" : ""}`}>
-            {supplies === undefined ? "…" : low}
-          </p>
+          {loading ? (
+            <div className="mt-2 h-9 w-16 animate-pulse rounded bg-muted" aria-hidden="true" />
+          ) : (
+            <p className={`mt-1 text-3xl font-semibold tabular-nums ${low > 0 ? "text-amber-700" : ""}`}>{low}</p>
+          )}
         </div>
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <p className="text-sm text-muted-foreground">Laboratórios</p>
-          <p className="mt-1 text-3xl font-semibold tabular-nums">—</p>
+          <p className="mt-1 text-3xl font-semibold tabular-nums text-muted-foreground">—</p>
+          <p className="mt-1 text-xs text-muted-foreground">Em breve — módulo de laboratórios.</p>
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
-        Módulos de reservas e cadastros das sprints anteriores integram este painel; o módulo de
-        insumos entra agora na Sprint 4.
+        Acompanhe estoque e manutenção pelos menus Insumos e Manutenção.
       </p>
     </div>
   );
@@ -97,7 +103,17 @@ export default function App() {
       </header>
 
       <main>
-        {tab === "inicio" ? <Dashboard /> : tab === "insumos" ? <InsumosPage /> : <ManutencaoPage />}
+        {/* 7.1: páginas permanecem montadas (ocultas) — busca, filtros, ficha
+            aberta e modais sobrevivem à troca de aba. */}
+        <div hidden={tab !== "inicio"}>
+          <Dashboard />
+        </div>
+        <div hidden={tab !== "insumos"}>
+          <InsumosPage />
+        </div>
+        <div hidden={tab !== "manutencao"}>
+          <ManutencaoPage />
+        </div>
       </main>
       {tab === "inicio" && <LowStockAlert />}
     </div>

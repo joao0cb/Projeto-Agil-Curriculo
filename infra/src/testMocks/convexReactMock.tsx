@@ -39,6 +39,7 @@ export function useQuery<Args = unknown, Result = unknown>(
 export function useMutation<Args = unknown, Result = unknown>(
   _mutationRef: QueryRef,
 ): (args: Args) => Promise<Result> {
+  void _mutationRef; // mutações não persistem no modo de demonstração
   return async () => {
     throw new Error(
       "Modo de demonstração (preview sem backend): a ação não foi persistida.",
@@ -58,7 +59,7 @@ export function ConvexProvider({
 
 export class ConvexReactClient {
   constructor(_address?: string) {
-    // Sem backend: nenhuma conexão é aberta no modo de demonstração.
+    void _address; // Sem backend: nenhuma conexão é aberta no modo de demonstração.
   }
 }
 

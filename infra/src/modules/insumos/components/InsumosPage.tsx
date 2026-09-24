@@ -4,6 +4,7 @@ import type { SupplyDraft } from "../domain/rules";
 import { SupplyList } from "./SupplyList";
 import { SupplyDetail } from "./SupplyDetail";
 import { SupplyForm } from "./SupplyForm";
+import { QueryErrorBoundary } from "../../../components/QueryErrorBoundary";
 
 /**
  * Página do módulo de insumos — Sprint 4.
@@ -18,6 +19,8 @@ export function InsumosPage() {
   const [onlyLowStock, setOnlyLowStock] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  // Incrementa a cada "tentar novamente" para remontar a árvore de query.
+  const [queryAttempt, setQueryAttempt] = useState(0);
 
   const { supplies, categories } = useSupplies({
     search,
@@ -58,20 +61,27 @@ export function InsumosPage() {
         </div>
       </header>
 
-      <SupplyList
-        supplies={supplies}
-        categories={categories}
-        isLoading={supplies === undefined}
-        error={null}
-        search={search}
-        onSearchChange={setSearch}
-        category={category}
-        onCategoryChange={setCategory}
-        onlyLowStock={onlyLowStock}
-        onOnlyLowStockChange={setOnlyLowStock}
-        onSelectSupply={setSelectedId}
-        onCreateSupply={() => setFormOpen(true)}
-      />
+      {/* 9.1: erros da query (rede/permissão) ficam visíveis com retry, sem tela branca. */}
+      <QueryErrorBoundary
+        key={queryAttempt}
+        action="carregar os insumos"
+        onRetry={() => setQueryAttempt((n) => n + 1)}
+      >
+        <SupplyList
+          supplies={supplies}
+          categories={categories}
+          isLoading={supplies === undefined}
+          error={null}
+          search={search}
+          onSearchChange={setSearch}
+          category={category}
+          onCategoryChange={setCategory}
+          onlyLowStock={onlyLowStock}
+          onOnlyLowStockChange={setOnlyLowStock}
+          onSelectSupply={setSelectedId}
+          onCreateSupply={() => setFormOpen(true)}
+        />
+      </QueryErrorBoundary>
 
       {detail && (
         <SupplyDetail
